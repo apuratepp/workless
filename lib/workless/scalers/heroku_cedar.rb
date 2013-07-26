@@ -7,11 +7,17 @@ module Delayed
         extend Delayed::Workless::Scaler::HerokuClient
 
         def self.up
+          WorklessLogger.info "[workless] Starting workers..."
           client.post_ps_scale(ENV['APP_NAME'], 'worker', self.workers_needed) if self.workers_needed > self.min_workers and self.workers < self.workers_needed
         end
 
         def self.down
+          WorklessLogger.info "[workless] Stopping workers..."
           client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers) unless self.jobs.count > 0 or self.workers == self.min_workers
+        end
+
+        def self.workers_down
+          WorklessLogger.info "[workless] workers down :D"
         end
 
         def self.workers
